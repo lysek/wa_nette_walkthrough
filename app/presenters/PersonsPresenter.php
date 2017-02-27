@@ -6,7 +6,7 @@ use App\Model\Locations;
 use App\Model\Persons;
 use Nette;
 use Nette\Application\UI;
-use Nette\Forms\Form;
+use Nette\Database\UniqueConstraintViolationException;
 
 class PersonsPresenter extends Nette\Application\UI\Presenter
 {
@@ -47,7 +47,7 @@ class PersonsPresenter extends Nette\Application\UI\Presenter
 			$this->personsModel->add($values);
 			$this->flashMessage('Osoba byla vlozena.');
 			$this->redirect('Persons:default');
-		} catch(\Exception $e) {
+		} catch(UniqueConstraintViolationException $e) {
 			$this->flashMessage('Takova osoba uz existuje.');
 		}
     }
