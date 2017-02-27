@@ -13,6 +13,10 @@ class Persons {
         $this->database = $database;
     }
 
+	public function add($values) {
+		return $this->database->table('persons')->insert($values);
+	}
+
     public function getPersons()
     {
         return $this->database->table('persons')
