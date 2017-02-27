@@ -6,12 +6,16 @@ Vypis osob
 <table>
 	<tr>
 		<th>Jméno</th>
+		<th>Adresa</th>
 		<th>Smazat</th>
 	</tr>
 {foreach $persons as $p}
 	<tr>
 		<td>
 			{$p->first_name} {$p->last_name}
+		</td>
+		<td>
+			{$p->ref('locations', 'id_location')->city}, {$p->ref('locations', 'id_location')->street_name} {$p->ref('locations', 'id_location')->street_number}
 		</td>
 		<td>
 			<form action="{$basePath}/persons/delete" onsubmit="return confirm('Opravdu smazat osobu?')" method="post">
