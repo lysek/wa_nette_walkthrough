@@ -17,11 +17,13 @@ class Persons {
 		return $this->database->table('persons')->insert($values);
 	}
 
-    public function getPersons()
-    {
-        return $this->database->table('persons')
-            ->order('last_name DESC');
+    public function getPersons() {
+        return $this->database->table('persons')->order('last_name DESC');
     }
+
+	public function delete($id) {
+		return $this->database->table('persons')->where("id = ?", $id)->delete();
+	}
 
 }
 

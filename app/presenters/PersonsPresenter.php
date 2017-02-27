@@ -8,8 +8,7 @@ use Nette;
 use Nette\Application\UI;
 use Nette\Database\UniqueConstraintViolationException;
 
-class PersonsPresenter extends Nette\Application\UI\Presenter
-{
+class PersonsPresenter extends Nette\Application\UI\Presenter {
 
 	private $personsModel;
 	private $locationsModel;
@@ -29,27 +28,34 @@ class PersonsPresenter extends Nette\Application\UI\Presenter
 		$locations = $this->locationsModel->getLocations();
 
 		$locationsArr = [];
-		foreach($locations as $loc) {
+		foreach ($locations as $loc) {
 			$locationsArr[$loc->id] = $loc->city . ", " . $loc->street_name . " " . $loc->street_number;
 		}
 		$form = new UI\Form;
-        $form->addText('first_name', 'Jmeno')->setRequired();
+		$form->addText('first_name', 'Jmeno')->setRequired();
 		$form->addText('last_name', 'Prijmeni')->setRequired();
 		$form->addText('nickname', 'Prezdivka')->setRequired();
-		$form->addSelect('id_location', "Adresa", $locationsArr)->setPrompt('Neznama adresa');;
+		$form->addSelect('id_location', "Adresa", $locationsArr)->setPrompt('Neznama adresa');
+		;
 		$form->addSubmit("add_person", 'Pridat osobu');
-        $form->onSuccess[] = [$this, 'personFormSucceeded'];
-        return $form;
-    }
+		$form->onSuccess[] = [$this, 'personFormSucceeded'];
+		return $form;
+	}
 
-    public function personFormSucceeded(UI\Form $form, $values) {
+	public function personFormSucceeded(UI\Form $form, $values) {
 		try {
 			$this->personsModel->add($values);
 			$this->flashMessage('Osoba byla vlozena.');
 			$this->redirect('Persons:default');
-		} catch(UniqueConstraintViolationException $e) {
+		} catch (UniqueConstraintViolationException $e) {
 			$this->flashMessage('Takova osoba uz existuje.');
 		}
-    }
+	}
+
+	public function actionDelete() {
+		$id = $this->request->getPost('id');
+		$this->personsModel->delete($id);
+		$this->redirect('Persons:default');
+	}
 
 }
