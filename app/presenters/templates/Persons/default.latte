@@ -1,0 +1,18 @@
+{block title}
+Vypis osob
+{/block}
+
+{block content}
+<table>
+	<tr>
+		<th>Jméno</th>
+	</tr>
+{foreach $persons as $p}
+	<tr>
+		<td>
+			{$p->first_name} {$p->last_name}
+		</td>
+	</tr>
+{/foreach}
+</table>
+{/block}
