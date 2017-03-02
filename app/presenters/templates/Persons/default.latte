@@ -15,10 +15,14 @@ Vypis osob
 			{$p->first_name} {$p->last_name}
 		</td>
 		<td>
-			{$p->ref('locations', 'id_location')->city}, {$p->ref('locations', 'id_location')->street_name} {$p->ref('locations', 'id_location')->street_number}
+			{if $p->ref('locations', 'id_location')}
+				{$p->ref('locations', 'id_location')->city}, {$p->ref('locations', 'id_location')->street_name} {$p->ref('locations', 'id_location')->street_number}
+			{else}
+				Nema adresu.
+			{/if}
 		</td>
 		<td>
-			<form action="{$basePath}/persons/delete" onsubmit="return confirm('Opravdu smazat osobu?')" method="post">
+			<form action="{link Persons:delete}" onsubmit="return confirm('Opravdu smazat osobu?')" method="post">
 				<input type="hidden" name="id" value="{$p->id}" />
 				<input type="submit" value="Smazat" />
 			</form>

@@ -36,7 +36,6 @@ class PersonsPresenter extends Nette\Application\UI\Presenter {
 		$form->addText('last_name', 'Prijmeni')->setRequired();
 		$form->addText('nickname', 'Prezdivka')->setRequired();
 		$form->addSelect('id_location', "Adresa", $locationsArr)->setPrompt('Neznama adresa');
-		;
 		$form->addSubmit("add_person", 'Pridat osobu');
 		$form->onSuccess[] = [$this, 'personFormSucceeded'];
 		return $form;

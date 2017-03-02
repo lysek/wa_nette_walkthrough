@@ -1,7 +1,7 @@
 # Ukázka použití frameworku Nette
 
-Tento projekt vznikl pro předmět WA. Tento průvodce ukáže základní použití frameworku Nette pro vytvoření aplikace,
-která zhruba odpovídá části zadání z předmětu APV (tedy evidence osob a jejich adres).
+Tento projekt vznikl pro předmět WA na PEF MENDELU. Tento průvodce ukáže základní použití frameworku Nette pro
+vytvoření aplikace, která zhruba odpovídá části zadání z předmětu APV (tedy evidence osob a jejich adres).
 
 ## Úvod
 
@@ -18,7 +18,7 @@ která zhruba odpovídá části zadání z předmětu APV (tedy evidence osob a
 
 ### Instalace a zahájení projektu
 - vytvořte si složku pro projekt
-- stáhněte framework pomocí Composeru příkazem `composer create-project nette/web-project`
+- stáhněte framework pomocí Composeru příkazem `composer create-project nette/web-project .` (vč. tečky na konci)
 - nyní je dobré založit projekt v NetBeans nebo jiném IDE
 - na lokálním webovém serveru zkontrolovat, že aplikace běží (otevřít složku [http://locahost/nette_demo/www](http://locahost/nette_demo/www),
   mělo by se zobrazit jméno frameworku s odkazem na dokumentaci - welcome obrazovka). Pozor: Nette je nastaveno tak, že
@@ -33,8 +33,8 @@ Důležité adresáře a soubory:
 	- `/config` - zde je konfigurace aplikace ve formátu Neon (variace na YAML)
 		- `config.neon` - společná konfigurace
 		- `config.local.neon` - lokální konfigurace pro konkrétní stroj (např. přístup k DB)
-	- `/presenters` - složka pro kontrollery
-		- `/templates` - složka s šablonami, pro každý presenter se zde vytvoří složka
+	- `/presenters` - složka pro presentery
+		- `/templates` - složka s šablonami, pro každý presenter se zde vytvoří složka, výchozí soubor je default
 	- `/router`
 		- `RouterFactory.php` - routing aplikace
 - `/log` - logy aplikace, tuto složku občas promazat (např. před odevzdáním nebo nahráním)
@@ -61,11 +61,16 @@ Databázi můžete naimportovat ze souboru [`/db_struktura.sql`](https://github.
 Vložte pomocí Admineru nebo phpMyAdminu do databáze záznamy o nějakých osobách. Vytvoříme třídu pro presenter
 `/app/presenters/PersonsPresenter.php` a šablonu `/app/presenters/templates/Persons/default.latte`, která data vypíše.
 Šablona automaticky načte sobuor `@layout.latte`. Presenter dědí z třídy `Nette\Application\UI\Presenter`.
+Je vidět, že šablony jsou uloženy vždy ve složce, která názvem odpovídá názvu presenteru (bez slova Presenter).
 
 V routeru `/app/router/RouterFactory.php` nastavte akci `default` z `PersonsPresenter` jako výchozí a smažte
 `HomepagePrsenter` a jeho šablony v odpovídající složce:
 
 	$router[] = new Route('<presenter>/<action>[/<id>]', 'Persons:default');
+
+Router je nastaven tak, že pro příchozí neznámou URL se snaží najít presenter a na něm spustit metodu.
+Např.: `/persons/edit` by spustilo `renderEdit` na třídě `PersonsPresenter`. Metoda `render*` by měla vykreslovat
+šablonu, ještě se často používá metoda `action*` pro akce, které přesměrovávají jinam, např. `actionDelete`.
 
 Nyní vytvoříme model pro práci s osobami - soubor `/app/model/Persons.php`:
 
@@ -91,7 +96,9 @@ Nyní vytvoříme model pro práci s osobami - soubor `/app/model/Persons.php`:
 
 	}
 
-A do `/app/config/config.neon` přidáme řádek registrující model Persons do systému dependency injection (DI):
+Závislost na `Nette\Database\Context` bude automaticky dosazena přes dependency injection.
+Do `/app/config/config.neon` přidáme řádek registrující model Persons do systému dependency injection (DI),
+abychom mohli o model `Persons` žádat v konstruktoru `PersonsPresenter`.
 
 	services:
 		router: App\RouterFactory::createRouter
@@ -123,10 +130,13 @@ Přidáme do presenteru tovární metodu pro formulář s předvyplněnými loka
 
 V šabloně stačí jen nechat formulář vyrenderovat z komponenty:
 
-	{control personForm}
+	{block title}Vytvoreni osoby{/block}
+	{block content}
+		{control personForm}
+	{/block}
 
-Následně přidáme metodu pro obsluhu odeslání, která je zaregistrována na formuláři. Necháme zobrazit odpovídající
-flash zprávy:
+Formuláře v Nette přímo generují HTML strukturu do HTML tabulky. Následně přidáme metodu pro obsluhu odeslání,
+která je zaregistrována na formuláři. Necháme zobrazit odpovídající flash zprávy:
 
 	public function personFormSucceeded(UI\Form $form, $values) {
 		try {
@@ -144,7 +154,22 @@ V layoutu aplikace je už nachystáno zobrazování flash zpráv, v případě c
 
 ### Smazání osoby
 Do šablony vložíme formulář s JavaScriptovým potvrzením. Tento formulář bude vykreslen v každém řádku tabulky a odešle
-ID osoby, která má být smazána. V routingu přidáme tentokrát POST routu na metodu delete kontroleru PersonsList.
+ID osoby, která má být smazána.
+
+Do atributu `action` formuláře buď vložíme přímo cestu k akci delete nebo ji necháme vygenerovat přes makro `link`:
+
+	<form action="{$basePath}/persons/delete" onsubmit="return confirm('Opravdu smazat osobu?')" method="post">
+		<input type="hidden" name="id" value="{$p->id}" />
+		<input type="submit" value="Smazat" />
+	</form>
+
+	<form action="{link Persons:delete}" onsubmit="return confirm('Opravdu smazat osobu?')" method="post">
+		<input type="hidden" name="id" value="{$p->id}" />
+		<input type="submit" value="Smazat" />
+	</form>
+
+Proměnná `$basePath` je v Nette velice důležitá, protože obsahuje cestu k veřejné části aplikace, dá se tedy použít
+pro načítání JS nebo CSS souborů v hlavičce.
 
 [Zdrojové kódy](https://github.com/lysek/wa_nette_walkthrough/commit/67d958eb34fe69f3ca301953a206fe85f5f75f3b)
 
