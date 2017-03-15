@@ -108,6 +108,17 @@ Pozor: v souborech Neon je potřeba odsazovat pomocí mezer místo tabulátorů.
 
 [Zdrojové kódy](https://github.com/lysek/wa_nette_walkthrough/commit/f8e74e0d4dbd891cde003e7f18d6a43b0642c57f)
 
+V layout latte můžeme nachystat menu buď ručně nebo můžeme cesty vygenerovat makrem `{link ...}`:
+
+	<nav>
+		<a href="{$basePath}/persons">Výpis osob</a>
+		<!-- nebo -->
+		<a href="{link Persons:create}">Pridat osobu</a>
+	</nav>
+
+Proměnná `$basePath` je v Nette velice důležitá, protože obsahuje cestu k veřejné části aplikace, dá se tedy použít
+pro načítání JS nebo CSS souborů v hlavičce.
+
 ### Přidání nové osoby
 Přidáme do presenteru tovární metodu pro formulář s předvyplněnými lokalitami:
 
@@ -156,7 +167,7 @@ V layoutu aplikace je už nachystáno zobrazování flash zpráv, v případě c
 Do šablony vložíme formulář s JavaScriptovým potvrzením. Tento formulář bude vykreslen v každém řádku tabulky a odešle
 ID osoby, která má být smazána.
 
-Do atributu `action` formuláře buď vložíme přímo cestu k akci delete nebo ji necháme vygenerovat přes makro `link`:
+Do atributu `action` formuláře buď opět vložíme přímo cestu k akci delete nebo ji necháme vygenerovat přes makro `link`:
 
 	<form action="{$basePath}/persons/delete" onsubmit="return confirm('Opravdu smazat osobu?')" method="post">
 		<input type="hidden" name="id" value="{$p->id}" />
@@ -167,9 +178,6 @@ Do atributu `action` formuláře buď vložíme přímo cestu k akci delete nebo
 		<input type="hidden" name="id" value="{$p->id}" />
 		<input type="submit" value="Smazat" />
 	</form>
-
-Proměnná `$basePath` je v Nette velice důležitá, protože obsahuje cestu k veřejné části aplikace, dá se tedy použít
-pro načítání JS nebo CSS souborů v hlavičce.
 
 [Zdrojové kódy](https://github.com/lysek/wa_nette_walkthrough/commit/67d958eb34fe69f3ca301953a206fe85f5f75f3b)
 

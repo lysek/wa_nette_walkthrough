@@ -11,8 +11,8 @@
 	<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
 
 	<nav>
-		<a href="{$basePath}/persons">Výpis osob</a>
-		<a href="{$basePath}/persons/create">Pridat osobu</a>
+		<a href="{link Persons:default}">Výpis osob</a>
+		<a href="{link Persons:create}">Pridat osobu</a>
 	</nav>
 
 	{include content}
